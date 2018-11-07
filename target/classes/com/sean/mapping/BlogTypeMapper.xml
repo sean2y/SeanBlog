@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.dao.BlogTypeDao">
+	<resultMap type="com.sean.model.BlogType" id="blogTypeResultMap">
+		<id property="typeId" column="type_id"/>
+		<result property="typeImage" column="type_image"/>
+		<result property="typeName" column="type_name"/>
+		<result property="typeOrderNum" column="type_orderNum"/>
+		<!-- <collection property="blogs" resultMap="com.sean.dao.BlogDao.blogResultMap"></collection> -->
+	</resultMap>
+	
+	<insert id="addType" useGeneratedKeys="true" parameterType="blogType">
+		insert into t_blogtype(type_image, type_name, type_orderNum) values(#{typeImage},#{typeName},#{typeOrderNum})
+	</insert>
+	
+	<delete id="delType" parameterType="Integer">
+		delete from t_blogType where type_id = #{typeId}
+	</delete>
+	
+	<update id="updType" parameterType="blogType">
+		update t_blogType 
+		<set>
+			<if test="typeImage != null and typeImage != ''" >
+				type_Image = #{typeImage},
+			</if>
+			<if test="typeName != null and typeName != '' ">
+				type_name=#{typeName},	
+			</if>
+			<if test="typeOrderNum != null and typeOrderNum != ''">
+				type_orderNum=#{typeOrderNum},
+			</if>
+		</set>
+		where type_id = #{typeId}
+	</update>
+	
+	<select id="listType" parameterType="Map" resultMap="blogTypeResultMap">
+		select type_id, type_name, type_orderNum from t_blogType order by type_orderNum
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	<select id="getTotal" resultType="long">
+		select count(type_Id) from t_blogType
+	</select>
+	<select id="listTypeNoPage" resultMap="blogTypeResultMap">
+		select * from t_blogType
+	</select>
+	<select id="findTypeById" parameterType="Integer" resultMap="blogTypeResultMap">
+		select * from t_blogType where type_id = #{typeId}
+	</select>
+	
+	<select id="showChart" resultType="chartVo">
+		SELECT t_blogtype.type_Name as typeName,COUNT(t_blogtype.type_Name) as blogNum FROM t_blog, t_blogtype  
+		WHERE t_blogtype.type_id=t_blog.blog_type_id GROUP BY t_blog.blog_type_id
+	</select>
+</mapper>

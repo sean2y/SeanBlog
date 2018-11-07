@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.dao.CommentDao">
+	<resultMap type="com.sean.model.Comment" id="commentResultMap">
+		<id property="commentId" column="comment_id"/>
+		<result property="commenterName" column="commenter_name"/>
+		<result property="commentContent" column="comment_content"/>
+		<result property="commentDate" column="comment_Date"/>
+		<result property="commentState" column="comment_state"/>
+		<association property="blog" column="com_blog_id" select="com.sean.dao.BlogDao.getBlogById">
+		</association>
+	</resultMap>
+	
+	<insert id="addComment" parameterType="comment" useGeneratedKeys="true">
+		insert into t_comment(commenter_Name,comment_content,comment_Date,com_blog_id) 
+		values(#{commenterName},#{commentContent},now(),#{blog.blogId});
+	</insert>
+	
+	<delete id="delComment" parameterType="Integer">
+		delete from t_comment where comment_id = #{commentId}
+	</delete>
+	<delete id="delCommentByBlogId" parameterType="Integer">
+		DELETE FROM t_comment WHERE com_blog_id = #{blogId}
+	</delete>
+	
+	<update id="updCommentState" parameterType="comment">
+		update t_comment
+		<set>
+			<if test="commentState != null and commentState !='' ">
+				comment_state = #{commentState},
+			</if>
+		</set>
+		where comment_id = #{commentId}
+	</update>
+	
+	<select id="listComment" parameterType="map" resultMap="commentResultMap">
+		select * from t_comment where comment_state = 0
+		<if test="blogId != null">
+			and com_blog_id = #{blogId} 
+		</if>
+		order by comment_id desc
+		<if test="start != null and pageSize != null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	<select id="listCommented" parameterType="map" resultMap="commentResultMap">
+		select * from t_comment where comment_state <![CDATA[!= ]]> 0
+		<if test="blogId != null">
+			and com_blog_id = #{blogId}
+		</if>
+		order by comment_id desc
+		<if test="start != null and pageSize != null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	<!-- 查询未被审核的记录 -->
+	<select id="getCommentTotal" resultType="Long">
+		select count(*) from t_comment where comment_state = 0;
+	</select>
+	<!-- 查询已被审核的记录 -->
+	<select id="getCommentedTotal" resultType="Long">
+		select count(*) from t_comment where comment_state <![CDATA[!= ]]> 0
+	</select>
+	<!-- 查询某篇博客的所有评论记录 -->
+	<select id="getCommentTotalByBlogId" parameterType="Integer" resultType="Long" >
+		select count(*) from t_comment where com_blog_id = #{blogId}
+	</select>
+	<select id="listCommentsByBlogId" parameterType="Integer" resultMap="commentResultMap">
+		select * from t_comment where com_blog_id = #{blogId}
+	</select>
+	
+	<select id="listCommentByBlogId" resultMap="commentResultMap" parameterType="Integer">
+		select * from t_comment where comment_state = 1 and com_blog_id = #{blogId}
+	</select>
+</mapper>

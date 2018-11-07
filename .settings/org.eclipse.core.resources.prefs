@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+encoding//WebContent/common/head.jspf=UTF-8
+encoding//WebContent/index.jsp=UTF-8
+encoding//src/main/resources/db.properties=UTF-8
+encoding//src/main/resources/log4j.properties=UTF-8

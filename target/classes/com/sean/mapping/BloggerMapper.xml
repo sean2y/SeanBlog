@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.dao.BloggerDao">
+	<resultMap type="com.sean.model.Blogger" id="bloggerResultMap">
+		<id property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="userPassword" column="user_password"/>
+		<result property="userProfile" column="user_profile"/>
+	</resultMap>
+	
+	<update id="updBlogger" parameterType="blogger">
+		update t_blogger
+		<set>
+			<if test="userName != null and userName!= ''">
+				user_name = #{userName},
+			</if>
+			<if test="userPassword!=null and userPassword!=''">
+				user_password = #{userPassword},
+			</if>
+			<if test="userProfile!= null and userProfile!='' ">
+				user_profile =#{userProfile},
+			</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+	<select id="getBloggerById" resultMap="bloggerResultMap">
+		select * from t_blogger where user_id = 1 limit 1
+	</select>
+</mapper>

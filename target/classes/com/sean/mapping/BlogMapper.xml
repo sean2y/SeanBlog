@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.dao.BlogDao">
+	<resultMap type="com.sean.model.Blog" id="blogResultMap">
+		<id property="blogId" column="blog_id"/>
+		<result property="blogTitle" column="blog_title"/>
+		<result property="blogSummary" column="blog_summary"/>
+		<result property="blogDate" column="blog_date"/>
+		<result property="blogContent" column="blog_content"/>
+		
+		<association property="blogType" column="blog_type_id" select="com.sean.dao.BlogTypeDao.findTypeById">
+		</association>
+	</resultMap>
+	
+	<insert id="addBlog" parameterType="blog" useGeneratedKeys="true">
+		insert into t_blog values(null,#{blogTitle},#{blogSummary},now(),#{blogContent},#{blogType.typeId})
+	</insert>
+	
+	<delete id="delBlog" parameterType="Integer">
+		delete from t_blog where blog_id = #{blogId}
+	</delete>
+	
+	<update id="updBlog" parameterType="blog">
+		update t_blog 
+		<set>
+			<if test="blogTitle != null and blogTitle !=''">
+				blog_title = #{blogTitle},
+			</if>
+			<if test="blogSummary != null and blogSummary !=''">
+				blog_summary = #{blogSummary},
+			</if>
+			<if test="blogContent != null and blogContent !=''">
+				blog_content = #{blogContent},
+			</if>
+			<if test="blogType.typeId != null">
+				blog_type_id = #{blogType.typeId},
+			</if>
+		</set>
+		where blog_id = #{blogId}
+	</update>
+		
+	<select id="listBlog" parameterType="Map" resultMap="blogResultMap">
+		select * from t_blog order by blog_id desc
+		<if test="start != null and pageSize != null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getTotal" resultType="Long">
+		select count(*) from t_blog
+	</select>
+	
+	<select id="listBlogNoPage" resultMap="blogResultMap">
+		select * from t_blog order by blog_Id desc
+	</select>
+	
+	<select id="getBlogByTypeId" parameterType="Integer" resultType="Integer">
+		select count(*) from t_blog where blog_type_id = #{typeId}
+	</select>
+	
+	<select id="getBlogById" parameterType="Integer" resultMap="blogResultMap">
+		select * from t_blog where blog_id = #{blogId}
+	</select>
+	
+	<select id="findBlogByTitle" parameterType="String" resultMap="blogResultMap">
+		select * from t_blog 
+		<where>
+			<if test="_parameter != null and _parameter !='' ">
+				and blog_title like '%${_parameter}%'
+			</if>
+		</where>
+	</select>
+	<select id="getFindBlogTotal" parameterType="String" resultType="Long">
+		select count(*) from t_blog 
+		<where>
+			<if test="_parameter != null and _parameter !='' ">
+				and blog_title like '%${_parameter}%'
+			</if>
+		</where>
+	</select>
+	<select id="listBlogByTypeId" parameterType="Integer" resultMap="blogResultMap" >
+		select * from t_blog where blog_type_id = #{typeId} order by blog_id desc
+	</select>
+</mapper>
